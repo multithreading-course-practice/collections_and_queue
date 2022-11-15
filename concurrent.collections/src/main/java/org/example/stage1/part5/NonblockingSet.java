@@ -2,10 +2,6 @@ package org.example.stage1.part5;
 
 
 import org.example.stage1.Set;
-import org.jetbrains.kotlinx.lincheck.annotations.Operation;
-import org.jetbrains.kotlinx.lincheck.annotations.Param;
-import org.jetbrains.kotlinx.lincheck.paramgen.IntGen;
-import org.jetbrains.kotlinx.lincheck.strategy.stress.StressCTest;
 
 import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.concurrent.locks.Lock;
