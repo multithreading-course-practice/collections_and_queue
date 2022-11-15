@@ -24,27 +24,18 @@ public class OptimisticSet<T> implements Set<T> {
                 pred = curr;
                 curr = curr.next;
             }
-            pred.lock();
-            try {
-                curr.lock();
-                try {
-                    if (validate(pred, curr)) {
-                        if (key == curr.key) {
-                            return false;
-                        }
 
-                        Node<T> node = new Node<>(item);
-                        node.next = curr;
-                        pred.next = node;
-                        return true;
-                    }
-                } finally {
-                    curr.unlock();
+            if (validate(pred, curr)) {
+                if (key == curr.key) {
+                    return false;
                 }
 
-            } finally {
-                pred.unlock();
+                Node<T> node = new Node<>(item);
+                node.next = curr;
+                pred.next = node;
+                return true;
             }
+
         }
     }
 

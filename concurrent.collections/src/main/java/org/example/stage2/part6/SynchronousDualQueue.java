@@ -27,14 +27,9 @@ public class SynchronousDualQueue<T> implements Queue<T> {
                 Node<T> next = last.next.get();
                 if (last == tail.get()) {
                     if (next != null) {
-                        tail.compareAndSet(last, next);
+
                     } else if (last.next.compareAndSet(next, offer)) {
-                        tail.compareAndSet(last, offer);
-                        while (offer.item.get() == value) ;
-                        first = head.get();
-                        if (offer == first.next.get()) {
-                            head.compareAndSet(first, offer);
-                        }
+
                         return;
                     }
                 }
@@ -43,11 +38,9 @@ public class SynchronousDualQueue<T> implements Queue<T> {
                 if (last != tail.get() || first != head.get() || next == null) {
                     continue;
                 }
-                boolean success = next.item.compareAndSet(null, value);
-                head.compareAndSet(first, next);
-                if (success) {
-                    return;
-                }
+
+
+                return;
             }
         }
     }

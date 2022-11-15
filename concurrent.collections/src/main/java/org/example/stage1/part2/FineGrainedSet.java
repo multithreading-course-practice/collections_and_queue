@@ -1,10 +1,6 @@
 package org.example.stage1.part2;
 
 import org.example.stage1.Set;
-import org.jetbrains.kotlinx.lincheck.annotations.Operation;
-import org.jetbrains.kotlinx.lincheck.annotations.Param;
-import org.jetbrains.kotlinx.lincheck.paramgen.IntGen;
-import org.jetbrains.kotlinx.lincheck.strategy.stress.StressCTest;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,32 +18,21 @@ public class FineGrainedSet<T> implements Set<T> {
     @Override
     public boolean add(T item) {
         int key = item.hashCode();
-        head.lock();
         Node<T> pred = head;
-        try {
-            Node<T> curr = pred.next;
-            curr.lock();
-            try {
-                while (curr.key < key) {
-                    pred.unlock();
-                    pred = curr;
-                    curr = curr.next;
-                    curr.lock();
-                }
-                if (key == curr.key) {
-                    return false;
-                }
-                Node<T> node = new Node<>(item);
-                node.next = curr;
-                pred.next = node;
-                return true;
-            } finally {
-                curr.unlock();
-            }
-
-        } finally {
+        Node<T> curr = pred.next;
+        while (curr.key < key) {
             pred.unlock();
+            pred = curr;
+            curr = curr.next;
         }
+        if (key == curr.key) {
+            return false;
+        }
+        Node<T> node = new Node<>(item);
+        node.next = curr;
+        pred.next = node;
+        return true;
+
     }
 
     @Override

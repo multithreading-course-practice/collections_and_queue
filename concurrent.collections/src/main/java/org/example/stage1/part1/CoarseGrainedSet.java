@@ -21,25 +21,21 @@ public class CoarseGrainedSet<T> implements Set<T> {
         Node<T> pred, curr;
         Integer intValue = (Integer) item;
         final int key = intValue.hashCode();
-        lock.lock();
-        try {
-            pred = head;
-            curr = pred.next;
-            while (curr.key < key) {
-                pred = curr;
-                curr = curr.next;
-            }
-            if (key == curr.key) {
-                return false;
-            } else {
-                Node<T> node = new Node<>(item);
-                node.next = curr;
-                pred.next = node;
-                return true;
-            }
-        } finally {
-            lock.unlock();
+        pred = head;
+        curr = pred.next;
+        while (curr.key < key) {
+            pred = curr;
+            curr = curr.next;
         }
+        if (key == curr.key) {
+            return false;
+        } else {
+            Node<T> node = new Node<>(item);
+            node.next = curr;
+            pred.next = node;
+            return true;
+        }
+
     }
 
     @Override

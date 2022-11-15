@@ -28,64 +28,34 @@ public class BoundedQueue<T> implements Queue<T> {
 
     @Override
     public void enq(T item) {
-        boolean mustWakeDequeuers = false;
         Node<T> e = new Node<>(item);
         enqLock.lock();
         try {
             while (size.get() == capacity) {
-                try {
-                    notFullCondition.await();
-                } catch (InterruptedException ex) {
-                    //ignore
-                }
+
             }
             tail.next = e;
             tail = e;
-            if (size.getAndIncrement() == 0) {
-                mustWakeDequeuers = true;
-            }
+
         } finally {
             enqLock.unlock();
         }
-        if (mustWakeDequeuers) {
-            deqLock.lock();
-            try {
-                notEmptyCondition.signalAll();
-            } finally {
-                deqLock.unlock();
-            }
-        }
+
     }
 
     @Override
     public T deq() {
         T result;
-        boolean mustWakeEnqueuers = false;
         deqLock.lock();
         try {
-            while (head.next == null) {
-                try {
-                    notEmptyCondition.await();
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
+
             result = head.next.value;
             head = head.next;
-            if (size.getAndDecrement() == capacity) {
-                mustWakeEnqueuers = true;
-            }
+
         } finally {
             deqLock.unlock();
         }
-        if (mustWakeEnqueuers) {
-            enqLock.lock();
-            try {
-                notFullCondition.signalAll();
-            } finally {
-                enqLock.unlock();
-            }
-        }
+
         return result;
     }
 

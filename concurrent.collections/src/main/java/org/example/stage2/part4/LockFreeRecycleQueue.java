@@ -28,12 +28,9 @@ public class LockFreeRecycleQueue<T> implements Queue<T> {
             Node<T> next = last.next.get(nextStamp);
             if (tail.getStamp() == lastStamp[0]) {
                 if (next == null) {
-                    if (last.next.compareAndSet(next, node, nextStamp[0], nextStamp[0] + 1)) {
-                        tail.compareAndSet(last, node, lastStamp[0], lastStamp[0] + 1);
-                        return;
-                    }
+
                 } else {
-                    tail.compareAndSet(last, next, lastStamp[0], lastStamp[0] + 1);
+
                 }
             }
         }
@@ -68,13 +65,11 @@ public class LockFreeRecycleQueue<T> implements Queue<T> {
                     if (next == null) {
                         throw new EmptyException();
                     }
-                    tail.compareAndSet(last, next, lastStamp[0], lastStamp[0] + 1);
+
                 } else {
                     T result = next.value;
-                    if (head.compareAndSet(first, next, firstStamp[0], firstStamp[0] + 1)) {
-                        free(first);
-                        return result;
-                    }
+
+                    return result;
                 }
             }
         }

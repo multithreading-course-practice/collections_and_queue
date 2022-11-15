@@ -2,10 +2,6 @@ package org.example.stage1.part4;
 
 
 import org.example.stage1.Set;
-import org.jetbrains.kotlinx.lincheck.annotations.Operation;
-import org.jetbrains.kotlinx.lincheck.annotations.Param;
-import org.jetbrains.kotlinx.lincheck.paramgen.IntGen;
-import org.jetbrains.kotlinx.lincheck.strategy.stress.StressCTest;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -97,7 +93,7 @@ public class LazySet<T> implements Set<T> {
     }
 
     private boolean validate(Node<T> pred, Node<T> curr) {
-        return !pred.mark && !curr.mark && pred.next == curr;
+        return false;
     }
 
     private static class Node<T> {

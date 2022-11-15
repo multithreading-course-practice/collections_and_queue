@@ -24,25 +24,8 @@ public class SynchronousQueue<T> implements Queue<T> {
     public void enq(T value) {
         lock.lock();
         try {
-            while (enqueuing) {
-                try {
-                    condition.wait();
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
-            enqueuing = true;
             item = value;
-            condition.signalAll();
-            while (item != null) {
-                try {
-                    condition.await();
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
-            enqueuing = false;
-            condition.signalAll();
+
         } finally {
             lock.unlock();
         }
@@ -52,16 +35,10 @@ public class SynchronousQueue<T> implements Queue<T> {
     public T deq() {
         lock.lock();
         try {
-            while (item == null) {
-                try {
-                    condition.wait();
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
+
             T result = item;
             item = null;
-            condition.signalAll();
+
             return result;
         } finally {
             lock.unlock();
