@@ -29,7 +29,9 @@ public class NonblockingSet<T> implements Set<T> {
             }
             Node<T> node = new Node<>(item);
             node.next = new AtomicMarkableReference<>(curr, false);
-
+            if (pred.next.compareAndSet(curr, node, false, false)) {
+                return true;
+            }
 
         }
     }
@@ -45,7 +47,11 @@ public class NonblockingSet<T> implements Set<T> {
                 return false;
             }
             Node<T> succ = curr.next.getReference();
-
+            snip = curr.next.compareAndSet(succ, succ, false, true);
+            if(!snip){
+                continue;
+            }
+            pred.next.compareAndSet(curr, succ, false, false);
             return true;
         }
     }

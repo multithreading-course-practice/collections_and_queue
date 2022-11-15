@@ -19,18 +19,29 @@ public class FineGrainedSet<T> implements Set<T> {
     public boolean add(T item) {
         int key = item.hashCode();
         Node<T> pred = head;
-        Node<T> curr = pred.next;
-        while (curr.key < key) {
+        pred.lock();
+        try {
+            Node<T> curr = pred.next;
+            curr.lock();
+            try {
+                while (curr.key < key) {
+                    pred.unlock();
+                    pred = curr;
+                    curr = curr.next;
+                    curr.lock();
+                }
+                if (key == curr.key) {
+                    return false;
+                }
+                Node<T> node = new Node<>(item);
+                node.next = curr;
+                pred.next = node;
+            }finally {
+                curr.unlock();
+            }
+        }finally {
             pred.unlock();
-            pred = curr;
-            curr = curr.next;
         }
-        if (key == curr.key) {
-            return false;
-        }
-        Node<T> node = new Node<>(item);
-        node.next = curr;
-        pred.next = node;
         return true;
 
     }

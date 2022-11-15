@@ -24,9 +24,12 @@ public class LockFreeQueue<T> implements Queue<T> {
             Node<T> next = last.next.get();
             if (last == tail.get()) {
                 if (next == null) {
-
+                    if (last.next.compareAndSet(null, node)) {
+                        tail.compareAndSet(last, node);
+                        return;
+                    }
                 } else {
-
+                    tail.compareAndSet(last, next);
                 }
             }
         }
@@ -43,10 +46,13 @@ public class LockFreeQueue<T> implements Queue<T> {
                     if (next == null) {
                         throw new EmptyException();
                     }
+                    tail.compareAndSet(last, next);
 
                 } else {
                     T result = next.value;
-
+                    if (head.compareAndSet(first, next)) {
+                        return result;
+                    }
                 }
             }
         }

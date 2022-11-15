@@ -18,22 +18,26 @@ public class CoarseGrainedSet<T> implements Set<T> {
 
     @Override
     public boolean add(T item) {
-        Node<T> pred, curr;
-        Integer intValue = (Integer) item;
-        final int key = intValue.hashCode();
-        pred = head;
-        curr = pred.next;
-        while (curr.key < key) {
-            pred = curr;
-            curr = curr.next;
-        }
-        if (key == curr.key) {
-            return false;
-        } else {
-            Node<T> node = new Node<>(item);
-            node.next = curr;
-            pred.next = node;
-            return true;
+        lock.lock();
+        try {
+            Node<T> pred, curr;
+            final int key = item.hashCode();
+            pred = head;
+            curr = pred.next;
+            while (curr.key < key) {
+                pred = curr;
+                curr = curr.next;
+            }
+            if (key == curr.key) {
+                return false;
+            } else {
+                Node<T> node = new Node<>(item);
+                node.next = curr;
+                pred.next = node;
+                return true;
+            }
+        } finally {
+            lock.unlock();
         }
 
     }

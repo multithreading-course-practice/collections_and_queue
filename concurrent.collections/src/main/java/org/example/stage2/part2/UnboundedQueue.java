@@ -24,22 +24,30 @@ public class UnboundedQueue<T> implements Queue<T> {
     @Override
     public void enq(T item) {
         Node<T> e = new Node<>(item);
-
-        tail.next = e;
-        tail = e;
+        enqLock.lock();
+        try {
+            tail.next = e;
+            tail = e;
+        }finally {
+            enqLock.unlock();
+        }
 
     }
 
     @Override
     public T deq() {
         T result;
+        deqLock.lock();
+        try {
+            if (head.next == null) {
+                throw new EmptyException();
+            }
+            result = head.next.value;
+            head = head.next;
 
-        if (head.next == null) {
-            throw new EmptyException();
+        }finally {
+            deqLock.unlock();
         }
-        result = head.next.value;
-        head = head.next;
-
         return result;
     }
 

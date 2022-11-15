@@ -30,15 +30,32 @@ public class BoundedQueue<T> implements Queue<T> {
     public void enq(T item) {
         Node<T> e = new Node<>(item);
         enqLock.lock();
+        boolean needSignal = false;
         try {
             while (size.get() == capacity) {
-
+                try {
+                    notFullCondition.await();
+                } catch (InterruptedException ex) {
+                    //
+                }
             }
             tail.next = e;
             tail = e;
+            if (size.getAndIncrement() == 0) {
+                needSignal = true;
+            }
 
         } finally {
             enqLock.unlock();
+        }
+
+        if (needSignal) {
+            deqLock.lock();
+            try {
+                notEmptyCondition.signalAll();
+            } finally {
+                deqLock.unlock();
+            }
         }
 
     }
@@ -47,15 +64,33 @@ public class BoundedQueue<T> implements Queue<T> {
     public T deq() {
         T result;
         deqLock.lock();
+        boolean needSignal = false;
         try {
-
+            while (head.next == null) {
+                try {
+                    notEmptyCondition.await();
+                } catch (InterruptedException e) {
+                    //
+                }
+            }
             result = head.next.value;
             head = head.next;
+            if (size.getAndDecrement() == capacity) {
+                needSignal = true;
+            }
 
         } finally {
             deqLock.unlock();
         }
 
+        if (needSignal) {
+            enqLock.lock();
+            try {
+                notFullCondition.signalAll();
+            } finally {
+                enqLock.unlock();
+            }
+        }
         return result;
     }
 

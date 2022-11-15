@@ -93,7 +93,7 @@ public class LazySet<T> implements Set<T> {
     }
 
     private boolean validate(Node<T> pred, Node<T> curr) {
-        return false;
+        return !pred.mark && !curr.mark && pred.next == curr;
     }
 
     private static class Node<T> {
